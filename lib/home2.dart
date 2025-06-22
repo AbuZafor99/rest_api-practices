@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:api_intrigation/productController.dart';
 import 'package:api_intrigation/widget/productCard.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,10 +15,15 @@ class Module13 extends StatefulWidget {
 class _Module13State extends State<Module13> {
   final ProductController productController = ProductController();
 
+  Future<void> fetchData()async{
+    await productController.fetchProducts();
+    print(productController.products.length);
+  }
+
   @override
   void initState() {
     super.initState();
-    fetchAndSetProducts();
+    fetchData();
   }
 
   void fetchAndSetProducts() async {
@@ -26,7 +33,7 @@ class _Module13State extends State<Module13> {
 
   @override
   Widget build(BuildContext context) {
-    void productDialog() {
+    void productDialog({String?id,String? name, String? img,int?qty, int? unitPrice, int? totalPrice ,required bool isUpdate}) {
       TextEditingController productNameController = TextEditingController();
       TextEditingController productQTYController = TextEditingController();
       TextEditingController productImageController = TextEditingController();
@@ -35,29 +42,41 @@ class _Module13State extends State<Module13> {
       TextEditingController productTotalPriceController =
           TextEditingController();
 
+      productNameController.text= name??"";
+      productImageController.text= img??"";
+      productQTYController.text= qty !=null ? qty.toString():"0";
+      productUnitPriceController.text= unitPrice !=null ? unitPrice.toString():"0";
+      productTotalPriceController.text= totalPrice !=null ? totalPrice.toString():"0";
+
+
       showDialog(
         context: context,
         builder:
             (context) => AlertDialog(
-              title: Text("Add Product"),
+              title: Text(isUpdate? "Edit Product":"Add Product"),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
+                    controller: productNameController,
                     decoration: InputDecoration(labelText: "product name"),
                   ),
                   TextField(
+                    controller: productImageController,
                     decoration: InputDecoration(labelText: "product image"),
                   ),
                   TextField(
+                    controller: productQTYController,
                     decoration: InputDecoration(labelText: "product quantity"),
                   ),
                   TextField(
+                    controller: productUnitPriceController,
                     decoration: InputDecoration(
                       labelText: "product unit price",
                     ),
                   ),
                   TextField(
+                    controller: productTotalPriceController,
                     decoration: InputDecoration(
                       labelText: "product total price",
                     ),
@@ -80,8 +99,23 @@ class _Module13State extends State<Module13> {
                       ),
                       SizedBox(width: 20),
                       ElevatedButton(
-                        onPressed: () {},
-                        child: Text("Add Product"),
+                        onPressed: () async {
+                            productController.CreateUpdateProducts(
+                              productNameController.text,
+                              productImageController.text,
+                              int.parse(productQTYController.text.trim()),
+                              int.parse(productUnitPriceController.text.trim()),
+                              int.parse(productTotalPriceController.text.trim()),
+                                id!,
+                              isUpdate,
+                            );
+                            Navigator.pop(context);
+                            fetchData();
+                            setState(() {
+
+                            });
+                          },
+                        child: Text(isUpdate ? "Update Product":"Add Product"),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blueAccent.shade200,
                           foregroundColor: Colors.white,
@@ -110,27 +144,33 @@ class _Module13State extends State<Module13> {
         ),
         itemCount: productController.products.length,
         itemBuilder: (context, index) {
-          var product=productController.products[index];
+          var product = productController.products[index];
           return ProductCard(
             onEdit: () {
-              productDialog();
+              productDialog(name:product.productName, img:product.img, id:product.sId ,unitPrice: product.unitPrice,totalPrice:product.totalPrice, qty:product.qty,isUpdate: true);
             },
             onDelete: () {
-              productController.DeleteProducts(product.sId.toString()).then((value) async {
-                if(value){
+              productController.DeleteProducts(product.sId.toString()).then((
+                value,
+              ) async {
+                if (value) {
                   await productController.fetchProducts();
-                  setState(() {
-                  });
+                  setState(() {});
                   ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Product deleted."),
-                      duration: Duration(seconds: 2),),
+                    SnackBar(
+                      content: Text("Product deleted."),
+                      duration: Duration(seconds: 2),
+                    ),
                   );
-                }else{
+                } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Something went wrong.",style: TextStyle(
-                      color: Colors.red
-                    ),),
-                      duration: Duration(seconds: 2),),
+                    SnackBar(
+                      content: Text(
+                        "Something went wrong.",
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      duration: Duration(seconds: 2),
+                    ),
                   );
                 }
               });
@@ -141,7 +181,7 @@ class _Module13State extends State<Module13> {
       ),
 
       floatingActionButton: FloatingActionButton(
-        onPressed: () => productDialog(),
+        onPressed: () => productDialog(isUpdate: false),
         child: Icon(Icons.add),
       ),
     );
