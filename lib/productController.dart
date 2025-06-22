@@ -18,4 +18,17 @@ class ProductController{
       products=model.data?? [] ;
     }
   }
+
+  Future<bool> DeleteProducts(String productId) async{
+    final response= await http.get(Uri.parse(Urls.deleteProduct(productId)));
+
+    print(response.statusCode);
+
+    if(response.statusCode==200){
+      fetchProducts();
+      return true;
+    }else{
+      return false;
+    }
+  }
 }

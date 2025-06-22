@@ -21,7 +21,7 @@ class _Module13State extends State<Module13> {
 
   void fetchAndSetProducts() async {
     await productController.fetchProducts();
-    setState(() {}); // This will rebuild the UI with the updated products list
+    setState(() {});
   }
 
   @override
@@ -110,12 +110,32 @@ class _Module13State extends State<Module13> {
         ),
         itemCount: productController.products.length,
         itemBuilder: (context, index) {
+          var product=productController.products[index];
           return ProductCard(
             onEdit: () {
               productDialog();
             },
-            onDelete: () {},
-            product: productController.products[index],
+            onDelete: () {
+              productController.DeleteProducts(product.sId.toString()).then((value) async {
+                if(value){
+                  await productController.fetchProducts();
+                  setState(() {
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Product deleted."),
+                      duration: Duration(seconds: 2),),
+                  );
+                }else{
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Something went wrong.",style: TextStyle(
+                      color: Colors.red
+                    ),),
+                      duration: Duration(seconds: 2),),
+                  );
+                }
+              });
+            },
+            product: product,
           );
         },
       ),
