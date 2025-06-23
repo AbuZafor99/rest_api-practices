@@ -8,7 +8,10 @@ class ProductCard extends StatelessWidget {
   final VoidCallback onDelete;
   final Data product;
   const ProductCard({
-    super.key, required this.onEdit, required this.onDelete, required this.product,
+    super.key,
+    required this.onEdit,
+    required this.onDelete,
+    required this.product,
   });
 
   @override
@@ -16,13 +19,12 @@ class ProductCard extends StatelessWidget {
     return Container(
       child: Column(
         children: [
-
           Container(
             height: 140,
             child: Image.network(
-                height: 100,
-                fit: BoxFit.cover,
-                product.img.toString(),
+              height: 100,
+              fit: BoxFit.cover,
+              product.img.toString(),
               errorBuilder: (context, error, stackTrace) {
                 return Image.network(
                   'https://lightwidget.com/wp-content/uploads/localhost-file-not-found.jpg',
@@ -36,14 +38,14 @@ class ProductCard extends StatelessWidget {
             padding: const EdgeInsets.all(10.0),
             child: Column(
               children: [
-                Text(product.productName.toString(),style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.black54
-                ),),
-                Text("Price: ${product.unitPrice}  | QTY: ${product.qty} ",style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.black54
-                ),),
+                Text(
+                  product.productName.toString(),
+                  style: TextStyle(fontSize: 15, color: Colors.black54),
+                ),
+                Text(
+                  "Price: ${product.unitPrice}  | QTY: ${product.qty} ",
+                  style: TextStyle(fontSize: 15, color: Colors.black54),
+                ),
               ],
             ),
           ),
@@ -52,12 +54,18 @@ class ProductCard extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconButton(onPressed: onEdit, icon: Icon(Icons.edit,color: Colors.orange,)),
-                SizedBox(width: 5,),
-                IconButton(onPressed: onDelete, icon: Icon(Icons.delete, color: Colors.red,)),
+                IconButton(
+                  onPressed: onEdit,
+                  icon: Icon(Icons.edit, color: Colors.orange),
+                ),
+                SizedBox(width: 5),
+                IconButton(
+                  onPressed: onDelete,
+                  icon: Icon(Icons.delete, color: Colors.red),
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

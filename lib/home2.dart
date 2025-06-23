@@ -15,9 +15,9 @@ class Module13 extends StatefulWidget {
 class _Module13State extends State<Module13> {
   final ProductController productController = ProductController();
 
-  Future<void> fetchData()async{
+  Future<void> fetchData() async {
     await productController.fetchProducts();
-    print(productController.products.length);
+    setState(() {});
   }
 
   @override
@@ -26,116 +26,129 @@ class _Module13State extends State<Module13> {
     fetchData();
   }
 
-  void fetchAndSetProducts() async {
-    await productController.fetchProducts();
-    setState(() {});
+  void productDialog({
+    String? id,
+    String? name,
+    String? img,
+    int? qty,
+    int? unitPrice,
+    int? totalPrice,
+    required bool isUpdate,
+  }) {
+    TextEditingController productNameController = TextEditingController();
+    TextEditingController productQTYController = TextEditingController();
+    TextEditingController productImageController = TextEditingController();
+    TextEditingController productUnitPriceController = TextEditingController();
+    TextEditingController productTotalPriceController = TextEditingController();
+
+    productNameController.text = name ?? '';
+    productImageController.text = img ?? '';
+    productQTYController.text = qty != null ? qty.toString() : '0';
+    productUnitPriceController.text =
+        unitPrice != null ? unitPrice.toString() : '0';
+    productTotalPriceController.text =
+        totalPrice != null ? totalPrice.toString() : '0';
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(isUpdate ? 'Edit product' : 'Add product'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: productNameController,
+                  decoration: InputDecoration(labelText: 'Product name'),
+                ),
+                TextField(
+                  controller: productImageController,
+                  decoration: InputDecoration(labelText: 'Product image'),
+                ),
+                TextField(
+                  controller: productQTYController,
+                  decoration: InputDecoration(labelText: 'Product qty'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: productUnitPriceController,
+                  decoration: InputDecoration(labelText: 'Product unit price'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: productTotalPriceController,
+                  decoration: InputDecoration(labelText: 'Total price'),
+                  keyboardType: TextInputType.number,
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('Close'),
+                    ),
+                    SizedBox(width: 5),
+                    ElevatedButton(
+                      onPressed: () async {
+                        bool result = await productController
+                            .createUpdateProducts(
+                              productNameController.text,
+                              productImageController.text,
+                              int.tryParse(productQTYController.text.trim()) ??
+                                  0,
+                              int.tryParse(
+                                    productUnitPriceController.text.trim(),
+                                  ) ??
+                                  0,
+                              int.tryParse(
+                                    productTotalPriceController.text.trim(),
+                                  ) ??
+                                  0,
+                              id,
+                              isUpdate,
+                            );
+                        if (result) {
+                          await fetchData();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                isUpdate
+                                    ? 'Product updated'
+                                    : 'Product created',
+                              ),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Something went wrong...!'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                        Navigator.pop(context);
+                      },
+                      child: Text(isUpdate ? 'Update Product' : 'Add product'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    void productDialog({String?id,String? name, String? img,int?qty, int? unitPrice, int? totalPrice ,required bool isUpdate}) {
-      TextEditingController productNameController = TextEditingController();
-      TextEditingController productQTYController = TextEditingController();
-      TextEditingController productImageController = TextEditingController();
-      TextEditingController productUnitPriceController =
-          TextEditingController();
-      TextEditingController productTotalPriceController =
-          TextEditingController();
-
-      productNameController.text= name??"";
-      productImageController.text= img??"";
-      productQTYController.text= qty !=null ? qty.toString():"0";
-      productUnitPriceController.text= unitPrice !=null ? unitPrice.toString():"0";
-      productTotalPriceController.text= totalPrice !=null ? totalPrice.toString():"0";
-
-
-      showDialog(
-        context: context,
-        builder:
-            (context) => AlertDialog(
-              title: Text(isUpdate? "Edit Product":"Add Product"),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: productNameController,
-                    decoration: InputDecoration(labelText: "product name"),
-                  ),
-                  TextField(
-                    controller: productImageController,
-                    decoration: InputDecoration(labelText: "product image"),
-                  ),
-                  TextField(
-                    controller: productQTYController,
-                    decoration: InputDecoration(labelText: "product quantity"),
-                  ),
-                  TextField(
-                    controller: productUnitPriceController,
-                    decoration: InputDecoration(
-                      labelText: "product unit price",
-                    ),
-                  ),
-                  TextField(
-                    controller: productTotalPriceController,
-                    decoration: InputDecoration(
-                      labelText: "product total price",
-                    ),
-                  ),
-
-                  SizedBox(height: 20),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text("Cancel"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.redAccent.shade400,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                      SizedBox(width: 20),
-                      ElevatedButton(
-                        onPressed: () async {
-                            productController.CreateUpdateProducts(
-                              productNameController.text,
-                              productImageController.text,
-                              int.parse(productQTYController.text.trim()),
-                              int.parse(productUnitPriceController.text.trim()),
-                              int.parse(productTotalPriceController.text.trim()),
-                                id!,
-                              isUpdate,
-                            );
-                            Navigator.pop(context);
-                            fetchData();
-                            setState(() {
-
-                            });
-                          },
-                        child: Text(isUpdate ? "Update Product":"Add Product"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent.shade200,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
-        title: Text("Products CRUD"),
+        title: Text('Product CRUD'),
         backgroundColor: Colors.blueAccent,
-        centerTitle: true,
+        centerTitle: false,
       ),
-
       body: GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -147,39 +160,41 @@ class _Module13State extends State<Module13> {
           var product = productController.products[index];
           return ProductCard(
             onEdit: () {
-              productDialog(name:product.productName, img:product.img, id:product.sId ,unitPrice: product.unitPrice,totalPrice:product.totalPrice, qty:product.qty,isUpdate: true);
+              productDialog(
+                name: product.productName,
+                img: product.img,
+                id: product.sId,
+                unitPrice: product.unitPrice,
+                totalPrice: product.totalPrice,
+                qty: product.qty,
+                isUpdate: true,
+              );
             },
-            onDelete: () {
-              productController.DeleteProducts(product.sId.toString()).then((
-                value,
-              ) async {
-                if (value) {
-                  await productController.fetchProducts();
-                  setState(() {});
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Product deleted."),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        "Something went wrong.",
-                        style: TextStyle(color: Colors.red),
-                      ),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                }
-              });
+            onDelete: () async {
+              bool result = await productController.deleteProducts(
+                product.sId.toString(),
+              );
+              if (result) {
+                await fetchData();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Product deleted'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Something went wrong...!'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              }
             },
             product: product,
           );
         },
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () => productDialog(isUpdate: false),
         child: Icon(Icons.add),

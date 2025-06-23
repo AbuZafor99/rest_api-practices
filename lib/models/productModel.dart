@@ -1,10 +1,10 @@
-class ProductModel {
+class productModel {
   String? status;
   List<Data>? data;
 
-  ProductModel({this.status, this.data});
+  productModel({this.status, this.data});
 
-  ProductModel.fromJson(Map<String, dynamic> json) {
+  productModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     if (json['data'] != null) {
       data = <Data>[];
@@ -33,23 +33,24 @@ class Data {
   int? unitPrice;
   int? totalPrice;
 
-  Data(
-      {this.sId,
-        this.productName,
-        this.productCode,
-        this.img,
-        this.qty,
-        this.unitPrice,
-        this.totalPrice});
+  Data({
+    this.sId,
+    this.productName,
+    this.productCode,
+    this.img,
+    this.qty,
+    this.unitPrice,
+    this.totalPrice,
+  });
 
   Data.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     productName = json['ProductName'];
-    productCode = json['ProductCode'];
+    productCode = _toInt(json['ProductCode']);
     img = json['Img'];
-    qty = json['Qty'];
-    unitPrice = json['UnitPrice'];
-    totalPrice = json['TotalPrice'];
+    qty = _toInt(json['Qty']);
+    unitPrice = _toInt(json['UnitPrice']);
+    totalPrice = _toInt(json['TotalPrice']);
   }
 
   Map<String, dynamic> toJson() {
@@ -63,4 +64,11 @@ class Data {
     data['TotalPrice'] = this.totalPrice;
     return data;
   }
+}
+
+int? _toInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is double) return value.toInt();
+  return int.tryParse(value.toString());
 }
