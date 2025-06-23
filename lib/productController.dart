@@ -39,9 +39,9 @@ class ProductController {
         "TotalPrice": totalPrice,
       }),
     );
-    print(response.statusCode);
-    if (response.statusCode == 201) {
-      await fetchProducts();
+    // print(response.statusCode);
+    if (response.statusCode == 201 ) {
+      fetchProducts();
       return true;
     } else {
       return false;
@@ -52,7 +52,7 @@ class ProductController {
     final response = await http.get(Uri.parse(Urls.deleteProduct(productId)));
     print(response.statusCode);
     if (response.statusCode == 200) {
-      await fetchProducts();
+      fetchProducts();
       return true;
     } else {
       return false;
